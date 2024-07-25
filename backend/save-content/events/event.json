@@ -1,0 +1,33 @@
+{
+    "prptHisId": 1716535096,
+    "genEngCd": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "sbjCd": "EN",
+    "grdCd": "lv1",
+    "trmCd": "1st",
+    "ctg1Cd": "Lession1",
+    "ctg2Cd": "Part 1",
+    "ctg3Cd": "",
+    "ctg4Cd": "",
+    "title": "토끼와 거북이",        
+    "desc1": "A hare was making fun of a tortoise for being so slow. 'Though you are very slow,' he said, 'I will run a race with you any day you like.' The tortoise agreed to run a race. When the day came, both started together. The hare ran very fast for some time, and then stopped to rest. He felt sure that he could beat the tortoise easily. The tortoise walked on slowly but steadily. After a while, the hare awoke from his nap and looked for the tortoise. To his surprise, the tortoise was near the winning post. The hare ran as fast as he could, but it was too late. The tortoise had already won the race. -test-",
+    "cont1": "",
+    "smmr":"",
+    "fgpt": "A hare mocked a slow-moving tortoise for being so sluggish. The tortoise challenged the hare to a race. The hare, confident in his speed, agreed and soon left the tortoise far behind. However, the overconfident hare took a nap midway, allowing the persistent tortoise to catch up and win the race.",
+    "questions": [
+        {
+            "question": "What did the hare do that allowed the tortoise to win the race?",
+            "legends": "A) Ran too fast B) Took a nap C) Cheated",
+            "answer": "B"
+        },
+        {
+            "question": "What is the moral of the story?",
+            "legends": "A) Slow and steady wins the race B) Boasting leads to failure C) Both A and B",
+            "answer": "C"
+        },
+        {
+            "question": "How did the hare feel about the tortoise initially?",
+            "legends": "A) Respectful B) Mocked him C) Afraid",
+            "answer": "B"
+        }
+    ]
+}

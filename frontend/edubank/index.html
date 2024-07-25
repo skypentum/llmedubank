@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>LLMEduBank</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .topbar {
+            width: 100%;
+            background: #f8f9fa;
+            padding-top: 10px;
+        }
+        .topbar a {
+            color: #000;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .topbar a:hover {
+            background: #e9ecef;
+        }
+        .my-2 > label, .row {
+            padding: 10px;
+        }
+        #searchBtn {
+            margin-left: 10px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        a:hover, h4:hover {
+            cursor: pointer; /* 커서 모양을 포인터로 설정 */
+            text-decoration: underline; /* 링크 텍스트에 밑줄 표시 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-md-12 content">
+                <div class="row topbar">
+                    <div class="col-md-2">
+                        <h4 id="menu_home">LLMEduBank</h4>                        
+                    </div>
+                    <div class="col-md-1">
+                        <h4 id="menu_add">등록</h4>                        
+                    </div>
+                    <div class="col-md-1">
+                        <h4 id="menu_search">조회</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <form class="form-inline my-2">
+                        <label>모델 선택</label>
+                        <select id="foundation_model_cd" class="form-control">
+                            <option value="">ALL</option>
+                            <option value="anthropic.claude-3-5-sonnet-20240620-v1:0">Claude 3.5 - Sonnet</option>
+                            <option value="microsoft.gpt-3.5">Chat GPT</option>
+                        </select>
+                        <label>과목 선택</label>
+                        <select id="subject_cd" class="form-control">
+                            <option value="">ALL</option>
+                            <option value="EN">영어</option>
+                            <option value="KO">국어</option>
+                            <option value="MA">수학</option>
+                        </select>
+                        <label>학년 선택</label>
+                        <select id="grade_cd" class="form-control">
+                            <option value="">ALL</option>
+                            <option value="lv1">초등 1학년</option>
+                            <option value="lv12">고등 3학년</option>
+                            <option value="lvMax">성인</option>
+                        </select>
+                        <label>학기 선택</label>
+                        <select id="term_cd" class="form-control">
+                            <option value="">ALL</option>
+                            <option value="term1">1학기</option>
+                            <option value="term2">2학기</option>
+                        </select>
+                        <label>단원코드</label>
+                        <input id="unit_cd" type="text" class="form-control" placeholder="단원 코드 입력">
+                        <button type="button" class="btn btn-primary" id="searchBtn">조회</button>
+                    </form>
+                </div>
+                <div class="row">
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="checkAll"></th>
+                                <th>모델엔진</th>
+                                <th>과목</th>
+                                <th>학년</th>
+                                <th>학기</th>
+                                <th>단원</th>
+                                <th>제목</th>
+                                <th>생성일</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="define_list">
+                            <tr>
+                                <td colspan="10">조회 결과가 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- <div class="pagination">
+                        <button class="btn btn-light">&lt;</button>
+                        <button class="btn btn-primary">1</button>
+                        <button class="btn btn-light">2</button>
+                        <button class="btn btn-light">3</button>
+                        <button class="btn btn-light">4</button>
+                        <button class="btn btn-light">5</button>
+                        <button class="btn btn-light">&gt;</button>
+                    </div> -->
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="env.js"></script>
+    <script>
+        $(document).ready(function() {
+            console.log(env.apiUrl)
+            searchDefineList(0, 100)            
+        });
+
+        $('#menu_add').on('click',() => {
+            location.href = '/view.html?type=add'
+        })
+
+        $('#menu_search').on('click',() => {
+            location.href = '/index.html'
+        })
+
+        $("#checkAll").click(function() {
+            $(".rowCheck").prop('checked', this.checked);
+        });
+
+        $(".rowCheck").click(function() {
+            if ($(".rowCheck").length == $(".rowCheck:checked").length) {
+                $("#checkAll").prop("checked", true);
+            } else {
+                $("#checkAll").prop("checked", false);
+            }
+        });
+
+        $("#searchBtn").click(function(event) {
+            // alert("조회 버튼이 클릭되었습니다!");
+            searchDefineList(0, 100)
+        });
+
+        $(".btn-danger").click(function() {
+            // $('#define_list').closest("tr").remove();
+        });
+
+        function searchDefineList(startPage, pageSize) {
+            // AJAX 요청 보내기
+            let data = {
+                "type": "list",
+                "genEngCd": $("#foundation_model_cd").val(),
+                "sbjCd": $("#subject_cd").val(),
+                "grdCd": $("#grade_cd").val(),
+                "trmCd": $("#term_cd").val(),
+                "ctg1Cd": $("#unit_cd").val(),
+                "pageSize": pageSize,
+                "startPage": startPage
+            }
+
+            console.log(data)
+
+            $.ajax({
+                type: 'POST',
+                // url: 'http://localhost:9080/reterive-content',  // 서버의 URL
+                url: env.apiUrl + '/reterive-content',  // 서버의 URL
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=UTF-8',
+                success: function(response) {
+                    console.log(response)
+                    let response_data = response.body
+                    let val = ''
+
+                    if(response_data.length == 0) {
+                        val += '<tr>' +
+                            '<td colspan="10">조회 결과가 없습니다.</td>' +
+                        '</tr>'
+                    }
+                    
+                    for(let i = 0; i < response_data.length; i++) {
+                        val += '<tr>' +
+                            '<td><input type="checkbox" class="rowCheck"></td>' +
+                            '<td>'+response_data[i]['gen_eng_cd']+'</td>' +
+                            '<td>'+response_data[i]['sbj_cd']+'</td>' +
+                            '<td>'+response_data[i]['grd_cd']+'</td>' +
+                            '<td>'+response_data[i]['trm_cd']+'</td>' +
+                            '<td>'+response_data[i]['ctg1_cd']+'</td>' +
+                            '<td><a href="/view.html?type=modify&dfnId='+response_data[i]['dfn_id']+'">'+response_data[i]['title']+'</a></td>' +
+                            '<td>'+response_data[i]['crt_at']+'</td>' +
+                            '<td>'+response_data[i]['mod_at']+'</td>' +
+                            '<td><input type="text" style="width: 120px;margin-right:10px; " id="user_id'+(i+1)+'" placeholder="사용자ID 입력"><button class="btn btn-primary send_mail" onclick="sendMail(\'user_id'+(i+1)+'\','+response_data[i]['dfn_id']+')">발송</button></td>' +
+                        '</tr>'
+                    }
+                    $('#define_list').html(val)
+                },
+                error: function(error) {
+                    $('#call_api_fm').text('생성');
+                    $('#call_api_fm').prop('disabled', false);
+                    console.log(error)
+                    alert('조회 실패: ' + error.responseText);
+                }
+            });
+        }
+
+        function sendMail(user_id, dfn_id) {
+            let data = {
+                "userId": $('#'+user_id).val(),
+                "dfnId": dfn_id,
+                "stdCnt": 1
+            }
+
+            console.log(data)
+
+            $('.send_mail').text('Sending...');
+            $('.send_mail').prop('disabled', true);
+
+            $.ajax({
+                type: 'POST',
+                // url: 'http://localhost:9080/send-mail',  // 서버의 URL
+                url: env.apiUrl + '/send-mail',  // 서버의 URL
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=UTF-8',
+                success: function(response) {
+                    console.log(response)
+                    $('.send_mail').text('발송');
+                    $('.send_mail').prop('disabled', false);
+                    alert('발송이 완료되었습니다.')
+                },
+                error: function(error) {
+                    $('.send_mail').text('발송');
+                    $('.send_mail').prop('disabled', false);
+                    console.log(error)
+                    alert('발송 실패: ' + error.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

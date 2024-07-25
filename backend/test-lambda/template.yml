@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ReteriveLlmModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      FunctionName: "test-lambda"
+      CodeUri: src/
+      Description: "Reterive LLM model"
+      MemorySize: 256
+      Timeout: 30
+      Tags:
+        Stage: dev
+        ServiceType: backend        
+        ResourceType: Lambda

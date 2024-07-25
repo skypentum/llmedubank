@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ReteriveContentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      FunctionName: reterive-content
+      CodeUri: src/
+      Description: "Reterive content"
+      MemorySize: 256
+      Timeout: 30
+      Tags:
+        Stage: dev
+        ServiceType: backend 
+        crudType: reterive       
+        ResourceType: Lambda

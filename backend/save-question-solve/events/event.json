@@ -1,0 +1,21 @@
+{
+  "questionHis": [{
+    "usrId": "test0001",
+    "stdCnt": 1,
+    "qstId": 1,
+    "answer" : "b",
+    "crrctYn": 1
+  },{
+    "usrId": "test0001",
+    "stdCnt": 1,
+    "qstId": 2,
+    "answer" : "b",
+    "crrctYn": 0
+  },{
+    "usrId": "test0001",
+    "stdCnt": 1,
+    "qstId": 3,
+    "answer" : "b",
+    "crrctYn": 1
+  }]
+}

@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  SendMailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      FunctionName: "sendMailFunction"
+      CodeUri: src/
+      Description: "send mail"
+      MemorySize: 256
+      Timeout: 180
+      Tags:
+        Stage: dev
+        ServiceType: backend    
+        crudType: Create    
+        ResourceType: Lambda

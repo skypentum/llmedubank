@@ -1,0 +1,5 @@
+{
+    "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "prompt": "영어 과목 중 요약문 완성 풀기에 대한 설명을 300자 이내로 한글로 생성하고, 토끼와 거북이 영어 지문 1개에 영어 문제 2개 5지선다로 생성 및 답을 생성해줘.",
+    "useDefaultJsonFormat": true
+}

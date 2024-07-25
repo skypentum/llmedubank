@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMEduBank Admin Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="env.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .topbar {
+            width: 100%;
+            background: #f8f9fa;
+            padding-top: 10px;
+        }
+        .topbar a {
+            color: #000;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .topbar a:hover {
+            background: #e9ecef;
+        }
+        .content {
+            padding: 20px;
+        }
+        .preview {
+            background: #e9ecef;
+            padding: 20px;
+        }
+        .preview img, .preview video {
+            max-width: 100%;
+            max-height: 100px;
+            margin-bottom: 10px;
+        }
+        .preview h4 {
+            background: #28a745;
+            color: white;
+            padding: 5px;
+        }
+
+        .preview h3 {
+            background: #4a28a7;
+            color: white;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        #preview_fingerprint {
+            border: 1px solid;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-md-12 content">
+                <div class="row">
+                    <div class="col-md-4 preview">
+                        <h3 id="preview_title">제목은 여기에...</h3>
+                        <h4>개념 설명</h4>
+                        <p id="preview_define">개념은 여기에...</p>
+                        <!-- <h4>개념 이미지</h4>
+                        <img src="image1.jpg" alt="Concept Image">
+                        <img src="image2.jpg" alt="Concept Image">
+                        <h4>개념 영상</h4>
+                        <video controls>
+                            <source src="movie1.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video> -->
+                        <h4 id="preview_question_count">문제 0/2</h4>
+                        <p id="preview_fingerprint">지문은 여기에...</p>
+                        <div id="preview_questions">
+                            <p>1. 1 + 1 = <input type="text"></p>
+                            <p>2. 2 + 2 = <input type="text"></p>
+                        </div>
+                        <button id="btn_save_question_solve" class="btn btn-primary">결과 저장</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let response_data = {}
+        let queryString = []
+        let question_count = 0
+        $(document).ready(function(event) { 
+            queryString = get_query()           
+            loadContent(queryString['dfnId'])
+        });
+
+        $('#btn_save_question_solve').on('click', (event) => {
+            event.preventDefault()
+
+            $('#btn_save_question_solve').text('Saving...');
+            $('#btn_save_question_solve').prop('disabled', true);
+
+            let questionHis = []
+            for(let i=0;i<question_count;i++) {
+                questionHis.push({
+                    "usrId": queryString['userId'],
+                    "stdCnt": queryString['stdCnt'],
+                    "qstId": $('#question_no'+(i+1)).val(),
+                    "answer" : $('#question_solve'+(i+1)).val(),
+                    "crrctYn": $('#answer'+(i+1)).val() == $('#question_solve'+(i+1)).val() ? 1 : 0
+                })
+            }
+
+            let data = {
+                "questionHis": questionHis
+            }
+
+            console.log(data)
+
+            // AJAX 요청 보내기
+            $.ajax({
+                type: 'POST',
+                // url: 'http://localhost:9080/save-question-solve',  // 서버의 URL
+                url: env.apiUrl + '/save-question-solve',  // 서버의 URL
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=UTF-8',
+                success: function(response) {
+                    $('#btn_save_question_solve').text('저장 완료');
+                    console.log(response)
+                    alert('성공적으로 저장하였습니다.')
+                },
+                error: function(error) {
+                    $('#btn_save_content').text('결과 저장');
+                    $('#btn_save_content').prop('disabled', false);
+                    console.log(error)
+                    alert('저장 실패: ' + error.responseText);
+                }
+            });
+        })
+
+        function get_query(){
+            var url = document.location.href;
+            var qs = url.substring(url.indexOf('?') + 1).split('&');
+            for(var i = 0, result = {}; i < qs.length; i++){
+                qs[i] = qs[i].split('=');
+                result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+            }
+
+            return result;
+        }
+
+        function loadContent(dfnId) {
+            let data = {
+                "type": "one",
+                "dfnId": dfnId
+            }
+            $.ajax({
+                type: 'POST',
+                // url: 'http://localhost:9080/reterive-content',  // 서버의 URL
+                url: env.apiUrl + '/reterive-content',  // 서버의 URL
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=UTF-8',
+                success: function(response) {
+                    console.log(response)
+                    let response_data = response.body
+                    bindPreviewQuestionArea(response_data)
+                },
+                error: function(error) {
+                    $('#call_api_fm').text('생성');
+                    $('#call_api_fm').prop('disabled', false);
+                    console.log(error)
+                    alert('조회 실패: ' + error.responseText);
+                }
+            });
+        }
+
+        function bindPreviewQuestionArea(data) {
+            $('#preview_title').html(data['dfnInfo']['title'])
+            $('#preview_define').html(data.description)
+            $('#preview_fingerprint').html(data.fingerprint)
+            question_count = data.questions.length
+            $('#preview_question_count').html('문제 : 총 '+ question_count + " 개")
+            let tbody = ''
+            for(let i=0; i<question_count;i++){
+                tbody += '<p>'+(i+1)+'. '+data.questions[i].question +'<input type="hidden" id="question_no'+(i+1)+'" value="'+data.questions[i].qstId+'"><input type="hidden" id="answer'+(i+1)+'" value="'+data.questions[i].answer+'"><input type="text" id="question_solve'+(i+1)+'" style="width:50px"></p>'+
+                '<p>'+data.questions[i].legends+'</p>'
+            }        
+            $('#preview_questions').html(tbody)
+        }
+    </script>
+</body>
+</html>
